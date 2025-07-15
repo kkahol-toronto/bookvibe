@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}AI Description Generator - BookVibe{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="hero-section">
+        <h1><i class="fas fa-magic me-3"></i>BookVibe AI Description Generator</h1>
+        <p class="lead">Generate compelling book descriptions tailored to different audiences</p>
+    </div>
+
+    <!-- Audience Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Target Audiences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-4 mb-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="mb-1">Gen Z</h6>
+                                <small class="text-muted">Ages 9-24</small>
+                                <p class="small mb-0 mt-2">Digital natives, value authenticity & social justice</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 mb-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="mb-1">Millennials</h6>
+                                <small class="text-muted">Ages 25-40</small>
+                                <p class="small mb-0 mt-2">Tech-savvy, appreciate meaningful experiences</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 mb-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="mb-1">Gen X</h6>
+                                <small class="text-muted">Ages 41-56</small>
+                                <p class="small mb-0 mt-2">Independent, value practicality & authenticity</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 mb-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="mb-1">Baby Boomers</h6>
+                                <small class="text-muted">Ages 57-75</small>
+                                <p class="small mb-0 mt-2">Traditional values, prefer detailed information</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 mb-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="mb-1">Silent Gen</h6>
+                                <small class="text-muted">Ages 76+</small>
+                                <p class="small mb-0 mt-2">Respectful of tradition, value clear communication</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Generator -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-wand-magic-sparkles me-2"></i>Generate Description</h5>
+                </div>
+                <div class="card-body">
+                    {% if books %}
+                        <form id="descriptionForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="bookSelect" class="form-label">Select Book *</label>
+                                    <select class="form-control" id="bookSelect" name="book_id" required>
+                                        <option value="">Choose a book...</option>
+                                        {% for book in books %}
+                                        <option value="{{ book.id }}" data-title="{{ book.title }}" data-author="{{ book.author }}" data-genre="{{ book.genre }}" data-year="{{ book.publication_year }}" data-description="{{ book.description or '' }}">
+                                            {{ book.title }} by {{ book.author }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="audienceSelect" class="form-label">Target Audience *</label>
+                                    <select class="form-control" id="audienceSelect" name="audience" required>
+                                        <option value="">Choose audience...</option>
+                                        <option value="genz">Gen Z (Ages 9-24) - Digital natives</option>
+                                        <option value="millennials">Millennials (Ages 25-40) - Tech-savvy adults</option>
+                                        <option value="genx">Gen X (Ages 41-56) - Independent adults</option>
+                                        <option value="baby_boomers">Baby Boomers (Ages 57-75) - Traditional values</option>
+                                        <option value="silent_generation">Silent Generation (Ages 76+) - Traditional respect</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div id="bookInfo" class="alert alert-info" style="display: none;">
+                                        <h6 class="alert-heading">Book Information</h6>
+                                        <div id="bookDetails"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="/" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Back to Library
+                                </a>
+                                <button type="submit" class="btn btn-warning" id="generateBtn">
+                                    <i class="fas fa-magic me-1"></i>Generate Description
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Loading State -->
+                        <div id="loadingState" class="text-center py-4" style="display: none;">
+                            <div class="spinner-border text-warning" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Generating AI-powered description...</p>
+                        </div>
+                        
+                        <!-- Existing Descriptions -->
+                        <div id="existingDescriptions" class="mt-4" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Existing Descriptions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="descriptionsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Generated Description -->
+                        <div id="generatedDescription" class="mt-4" style="display: none;">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-star me-2"></i>Generated Description</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="descriptionText" class="mb-3"></div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-success" onclick="saveDescription()">
+                                            <i class="fas fa-save me-1"></i>Save to Book
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="regenerateDescription()">
+                                            <i class="fas fa-redo me-1"></i>Regenerate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Error State -->
+                        <div id="errorState" class="alert alert-danger mt-4" style="display: none;">
+                            <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Error</h6>
+                            <p id="errorMessage" class="mb-0"></p>
+                        </div>
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-books fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No books available</h5>
+                            <p class="text-muted">Add some books to your library first to generate descriptions.</p>
+                            <a href="/add-book" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Add Your First Book
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentBookId = null;
+let currentDescription = null;
+
+// Show book information when selected
+document.getElementById('bookSelect').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const bookInfo = document.getElementById('bookInfo');
+    const bookDetails = document.getElementById('bookDetails');
+    
+    if (this.value) {
+        const title = selectedOption.dataset.title;
+        const author = selectedOption.dataset.author;
+        const genre = selectedOption.dataset.genre;
+        const year = selectedOption.dataset.year;
+        const description = selectedOption.dataset.description;
+        
+        bookDetails.innerHTML = `
+            <p><strong>Title:</strong> ${title}</p>
+            <p><strong>Author:</strong> ${author}</p>
+            <p><strong>Genre:</strong> ${genre}</p>
+            <p><strong>Year:</strong> ${year}</p>
+            ${description ? `<p><strong>Current Description:</strong> ${description}</p>` : '<p><em>No current description</em></p>'}
+        `;
+        bookInfo.style.display = 'block';
+        
+        // Load existing descriptions for this book
+        loadExistingDescriptions(this.value);
+    } else {
+        bookInfo.style.display = 'none';
+        document.getElementById('existingDescriptions').style.display = 'none';
+    }
+});
+
+function loadExistingDescriptions(bookId) {
+    fetch(`/api/book/${bookId}/descriptions`)
+        .then(response => response.json())
+        .then(data => {
+            const descriptionsDiv = document.getElementById('existingDescriptions');
+            const descriptionsList = document.getElementById('descriptionsList');
+            
+            if (data.descriptions && data.descriptions.length > 0) {
+                let html = '<div class="row">';
+                data.descriptions.forEach(desc => {
+                    const audienceNames = {
+                        'genz': 'Gen Z (Ages 9-24)',
+                        'millennials': 'Millennials (Ages 25-40)',
+                        'genx': 'Gen X (Ages 41-56)',
+                        'baby_boomers': 'Baby Boomers (Ages 57-75)',
+                        'silent_generation': 'Silent Generation (Ages 76+)'
+                    };
+                    
+                    html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">${audienceNames[desc.audience] || desc.audience}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-2">${desc.description}</p>
+                                    <small class="text-muted">Generated: ${new Date(desc.generated_at).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                descriptionsList.innerHTML = html;
+                descriptionsDiv.style.display = 'block';
+            } else {
+                descriptionsDiv.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading descriptions:', error);
+            document.getElementById('existingDescriptions').style.display = 'none';
+        });
+}
+
+// Handle form submission
+document.getElementById('descriptionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const bookId = document.getElementById('bookSelect').value;
+    const audience = document.getElementById('audienceSelect').value;
+    
+    if (!bookId || !audience) {
+        alert('Please select both a book and target audience.');
+        return;
+    }
+    
+    currentBookId = bookId;
+    generateDescription(bookId, audience);
+});
+
+function generateDescription(bookId, audience) {
+    // Show loading state
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('generatedDescription').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('generateBtn').disabled = true;
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    formData.append('audience', audience);
+    
+    // Make API call
+    fetch('/generate-description', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('generateBtn').disabled = false;
+        
+        if (data.success) {
+            currentDescription = data.description;
+            document.getElementById('descriptionText').textContent = data.description;
+            document.getElementById('generatedDescription').style.display = 'block';
+        } else {
+            document.getElementById('errorMessage').textContent = data.error || 'An error occurred while generating the description.';
+            document.getElementById('errorState').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('generateBtn').disabled = false;
+        document.getElementById('errorMessage').textContent = 'Network error. Please try again.';
+        document.getElementById('errorState').style.display = 'block';
+    });
+}
+
+function saveDescription() {
+    if (!currentBookId || !currentDescription) {
+        alert('No description to save.');
+        return;
+    }
+    
+    // The description is already saved when generated, so we just need to refresh the existing descriptions
+    alert('Description saved successfully!');
+    
+    // Refresh the existing descriptions
+    loadExistingDescriptions(currentBookId);
+    
+    // Hide the generated description
+    document.getElementById('generatedDescription').style.display = 'none';
+    
+    // Update the option in the select
+    const option = document.querySelector(`option[value="${currentBookId}"]`);
+    if (option) {
+        option.dataset.description = currentDescription;
+    }
+}
+
+function regenerateDescription() {
+    const bookId = document.getElementById('bookSelect').value;
+    const audience = document.getElementById('audienceSelect').value;
+    
+    if (bookId && audience) {
+        generateDescription(bookId, audience);
+    }
+}
+</script>
+{% endblock %} 

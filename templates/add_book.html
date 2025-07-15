@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Add Book - BookVibe{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Add New Book</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/add-book">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">Book Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="author" class="form-label">Author *</label>
+                                <input type="text" class="form-control" id="author" name="author" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="isbn" class="form-label">ISBN *</label>
+                                <input type="text" class="form-control" id="isbn" name="isbn" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="genre" class="form-label">Genre *</label>
+                                <select class="form-control" id="genre" name="genre" required>
+                                    <option value="">Select Genre</option>
+                                    <option value="Fiction">Fiction</option>
+                                    <option value="Non-Fiction">Non-Fiction</option>
+                                    <option value="Science Fiction">Science Fiction</option>
+                                    <option value="Fantasy">Fantasy</option>
+                                    <option value="Mystery">Mystery</option>
+                                    <option value="Thriller">Thriller</option>
+                                    <option value="Romance">Romance</option>
+                                    <option value="Biography">Biography</option>
+                                    <option value="History">History</option>
+                                    <option value="Science">Science</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Philosophy">Philosophy</option>
+                                    <option value="Poetry">Poetry</option>
+                                    <option value="Drama">Drama</option>
+                                    <option value="Children">Children</option>
+                                    <option value="Young Adult">Young Adult</option>
+                                    <option value="Self-Help">Self-Help</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Cooking">Cooking</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="publication_year" class="form-label">Publication Year *</label>
+                                <input type="number" class="form-control" id="publication_year" name="publication_year" 
+                                       min="1000" max="2024" value="2024" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Optional: Add a brief description of the book..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="/" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Library
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Add Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-fill current year
+document.getElementById('publication_year').value = new Date().getFullYear();
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const author = document.getElementById('author').value.trim();
+    const isbn = document.getElementById('isbn').value.trim();
+    const genre = document.getElementById('genre').value;
+    const year = document.getElementById('publication_year').value;
+    
+    if (!title || !author || !isbn || !genre || !year) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    if (year < 1000 || year > 2024) {
+        e.preventDefault();
+        alert('Please enter a valid publication year between 1000 and 2024.');
+        return false;
+    }
+});
+</script>
+{% endblock %} 

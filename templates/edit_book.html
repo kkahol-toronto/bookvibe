@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Book - BookVibe{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Book</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/edit-book/{{ book.id }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">Book Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" value="{{ book.title }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="author" class="form-label">Author *</label>
+                                <input type="text" class="form-control" id="author" name="author" value="{{ book.author }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="isbn" class="form-label">ISBN *</label>
+                                <input type="text" class="form-control" id="isbn" name="isbn" value="{{ book.isbn }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="genre" class="form-label">Genre *</label>
+                                <select class="form-control" id="genre" name="genre" required>
+                                    <option value="">Select Genre</option>
+                                    <option value="Fiction" {% if book.genre == 'Fiction' %}selected{% endif %}>Fiction</option>
+                                    <option value="Non-Fiction" {% if book.genre == 'Non-Fiction' %}selected{% endif %}>Non-Fiction</option>
+                                    <option value="Science Fiction" {% if book.genre == 'Science Fiction' %}selected{% endif %}>Science Fiction</option>
+                                    <option value="Fantasy" {% if book.genre == 'Fantasy' %}selected{% endif %}>Fantasy</option>
+                                    <option value="Mystery" {% if book.genre == 'Mystery' %}selected{% endif %}>Mystery</option>
+                                    <option value="Thriller" {% if book.genre == 'Thriller' %}selected{% endif %}>Thriller</option>
+                                    <option value="Romance" {% if book.genre == 'Romance' %}selected{% endif %}>Romance</option>
+                                    <option value="Biography" {% if book.genre == 'Biography' %}selected{% endif %}>Biography</option>
+                                    <option value="History" {% if book.genre == 'History' %}selected{% endif %}>History</option>
+                                    <option value="Science" {% if book.genre == 'Science' %}selected{% endif %}>Science</option>
+                                    <option value="Technology" {% if book.genre == 'Technology' %}selected{% endif %}>Technology</option>
+                                    <option value="Philosophy" {% if book.genre == 'Philosophy' %}selected{% endif %}>Philosophy</option>
+                                    <option value="Poetry" {% if book.genre == 'Poetry' %}selected{% endif %}>Poetry</option>
+                                    <option value="Drama" {% if book.genre == 'Drama' %}selected{% endif %}>Drama</option>
+                                    <option value="Children" {% if book.genre == 'Children' %}selected{% endif %}>Children</option>
+                                    <option value="Young Adult" {% if book.genre == 'Young Adult' %}selected{% endif %}>Young Adult</option>
+                                    <option value="Self-Help" {% if book.genre == 'Self-Help' %}selected{% endif %}>Self-Help</option>
+                                    <option value="Business" {% if book.genre == 'Business' %}selected{% endif %}>Business</option>
+                                    <option value="Cooking" {% if book.genre == 'Cooking' %}selected{% endif %}>Cooking</option>
+                                    <option value="Travel" {% if book.genre == 'Travel' %}selected{% endif %}>Travel</option>
+                                    <option value="Other" {% if book.genre == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="publication_year" class="form-label">Publication Year *</label>
+                                <input type="number" class="form-control" id="publication_year" name="publication_year" 
+                                       value="{{ book.publication_year }}" min="1000" max="2024" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Optional: Add a brief description of the book...">{{ book.description or '' }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="/" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Library
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Update Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const author = document.getElementById('author').value.trim();
+    const isbn = document.getElementById('isbn').value.trim();
+    const genre = document.getElementById('genre').value;
+    const year = document.getElementById('publication_year').value;
+    
+    if (!title || !author || !isbn || !genre || !year) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    if (year < 1000 || year > 2024) {
+        e.preventDefault();
+        alert('Please enter a valid publication year between 1000 and 2024.');
+        return false;
+    }
+});
+</script>
+{% endblock %} 
