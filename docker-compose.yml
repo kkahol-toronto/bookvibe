@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  bookvibe:
+    build:
+      context: .
+      platform: linux/amd64
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      - OPENAI_API_VERSION=${OPENAI_API_VERSION}
+      - OPENAI_API_TYPE=${OPENAI_API_TYPE}
+    volumes:
+      - ./library.db:/app/library.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s 

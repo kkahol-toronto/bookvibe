@@ -28,7 +28,9 @@ deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT")
 app = FastAPI(title="BookVibe - AI-Powered Library Management", version="1.0.0")
 
 # Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./library.db"
+# Use environment variable for database path, default to local file
+DATABASE_PATH = os.getenv("DATABASE_PATH", "./library.db")
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -93,6 +95,10 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Routes
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "BookVibe"}
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     books = db.query(Book).all()
